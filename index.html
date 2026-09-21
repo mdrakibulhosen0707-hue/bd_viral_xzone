@@ -1,12 +1,146 @@
-const videoData = [
-    {
-        id: 1,
-        title: "আপনার ভিডিওর শিরোনাম",
-        category: "trending", // ক্যাটাগরি: 'trending', 'deshi', 'celebrity'
-        views: "12.5K",
-        likes: 3400,
-        thumb: "https://... (ছবি/থাম্বনেইলের লিঙ্ক)",
-        videoUrl: "https://... (ভিডিওর লিঙ্ক)"
-    },
-    // কমা (,) দিয়ে এভাবে নতুন ভিডিওর ডাটা বসাতে পারবেন
-];
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Hub</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0d0e12; color: #fff; font-family: Arial, sans-serif; padding-bottom: 30px; }
+        
+        /* Age Verification Screen */
+        #ageScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 999; padding: 20px;
+        }
+        .age-box {
+            border: 2px solid #ff0055; border-radius: 20px; padding: 25px;
+            text-align: center; background: #15161e; box-shadow: 0 0 20px #ff0055; width: 100%; max-width: 350px;
+        }
+        .age-box h2 { font-size: 22px; margin-bottom: 10px; color: #fff; }
+        .age-box p { font-size: 13px; color: #aaa; margin-bottom: 20px; }
+        .age-btn {
+            background: linear-gradient(45deg, #ff0055, #ff5000); color: white;
+            border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer;
+        }
+
+        /* Main App Header */
+        header { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #222; }
+        .profile-pic { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ff0055; margin-right: 12px; }
+        .header-title { font-size: 20px; font-weight: bold; background: linear-gradient(45deg, #ff0055, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Categories */
+        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 15px; }
+        .cat-btn { background: #1f212d; color: #ccc; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; white-space: nowrap; cursor: pointer; }
+        .cat-btn.active { background: linear-gradient(45deg, #7928ca, #ff0080); color: white; font-weight: bold; }
+
+        /* Video Section */
+        .section-title { font-size: 18px; margin: 15px; color: #ddd; display: flex; align-items: center; gap: 8px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
+        .card { background: #161822; border-radius: 12px; overflow: hidden; border: 1px solid #2a2d3d; position: relative; }
+        .card.featured { grid-column: span 2; border: 2px solid #ff0055; box-shadow: 0 0 12px rgba(255,0,85,0.4); }
+        .thumb { width: 100%; height: 110px; object-fit: cover; }
+        .card.featured .thumb { height: 180px; }
+        .info { padding: 10px; }
+        .title { font-size: 13px; margin-bottom: 8px; color: #eee; height: 32px; overflow: hidden; }
+        .meta { display: flex; justify-content: space-between; font-size: 11px; color: #888; align-items: center; }
+        .like-btn { background: none; border: none; color: #ff0055; cursor: pointer; font-size: 12px; }
+
+        /* Video Player Modal */
+        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; justify-content: center; }
+        video { width: 100%; max-height: 80vh; }
+        .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; background: none; border: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Age Screen -->
+    <div id="ageScreen">
+        <div class="age-box">
+            <h2>VERIFY YOUR AGE</h2>
+            <p>আপনার বয়স ১৮ বছরের বেশি হলে নিচের বাটনটিতে ক্লিক করুন।</p>
+            <button class="age-btn" onclick="verifyAge()">I AM 18+ & ENTER</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <header>
+        <img class="profile-pic" src="https://picsum.photos/100/100" alt="Logo">
+        <div class="header-title">Video Hub</div>
+    </header>
+
+    <div class="categories">
+        <button class="cat-btn active" onclick="filterCategory('all')">🌐 সবগুলো</button>
+        <button class="cat-btn" onclick="filterCategory('trending')">🔥 ট্রেন্ডিং</button>
+        <button class="cat-btn" onclick="filterCategory('deshi')">🏠 দেশী</button>
+        <button class="cat-btn" onclick="filterCategory('celebrity')">⭐ সেলিব্রিটি</button>
+    </div>
+
+    <div class="section-title">🔥 ট্রেন্ডিং ভিডিও - সবার সেরা</div>
+    <div class="grid" id="videoGrid"></div>
+
+    <!-- Modal Player -->
+    <div id="playerModal">
+        <button class="close-btn" onclick="closePlayer()">✕</button>
+        <video id="mainVideo" controls autoplay></video>
+    </div>
+
+    <script>
+        window.Telegram.WebApp.ready();
+
+        const videoData = [
+            { id: 1, title: "ট্রেন্ডিং ভিডিও ১", category: "trending", views: "12.5K", likes: 3400, thumb: "https://picsum.photos/400/220?random=1", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: true },
+            { id: 2, title: "দেশী হিট ভিডিও ২", category: "deshi", views: "8.2K", likes: 1200, thumb: "https://picsum.photos/200/150?random=2", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: false },
+            { id: 3, title: "সেলিব্রিটি বিশেষ ভিডিও ৩", category: "celebrity", views: "15.1K", likes: 4500, thumb: "https://picsum.photos/200/150?random=3", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: false }
+        ];
+
+        function verifyAge() {
+            document.getElementById('ageScreen').style.display = 'none';
+        }
+
+        function renderVideos(data) {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = '';
+            data.forEach(v => {
+                grid.innerHTML += `
+                    <div class="card ${v.featured ? 'featured' : ''}" onclick="playVideo('${v.videoUrl}')">
+                        <img class="thumb" src="${v.thumb}">
+                        <div class="info">
+                            <div class="title">${v.title}</div>
+                            <div class="meta">
+                                <span>👁️ ${v.views}</span>
+                                <button class="like-btn" onclick="event.stopPropagation(); this.innerText='❤️ ' + (${v.likes}+1)">❤️ ${v.likes}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            if(cat === 'all') renderVideos(videoData);
+            else renderVideos(videoData.filter(v => v.category === cat));
+        }
+
+        function playVideo(url) {
+            const modal = document.getElementById('playerModal');
+            const video = document.getElementById('mainVideo');
+            video.src = url;
+            modal.style.display = 'flex';
+        }
+
+        function closePlayer() {
+            const modal = document.getElementById('playerModal');
+            const video = document.getElementById('mainVideo');
+            video.pause();
+            modal.style.display = 'none';
+        }
+
+        renderVideos(videoData);
+    </script>
+</body>
+</html>
