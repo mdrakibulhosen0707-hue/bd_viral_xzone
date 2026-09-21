@@ -3,144 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Hub</title>
+    <title>Viral Video X Zone</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #0d0e12; color: #fff; font-family: Arial, sans-serif; padding-bottom: 30px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #000; color: #fff; overflow-x: hidden; }
+
+        /* Step 1: Age Verification */
+        #step1 {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #000; display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px;
+        }
+        .age-card {
+            background: #0b0d17; border: 1.5px solid #ff0055; box-shadow: 0 0 25px rgba(255, 0, 85, 0.4);
+            border-radius: 20px; padding: 30px 20px; text-align: center; width: 100%; max-width: 360px;
+        }
+        .age-card h2 { font-size: 22px; margin-bottom: 12px; letter-spacing: 1px; }
+        .age-card p { font-size: 13px; color: #aaa; margin-bottom: 25px; line-height: 1.5; }
+        .btn-age {
+            background: linear-gradient(90deg, #d31027, #ea384d); color: white; border: none;
+            padding: 12px 25px; border-radius: 25px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer;
+        }
+
+        /* Step 2: Premium Options */
+        #step2 {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #000; display: none; justify-content: center; align-items: center; z-index: 90; padding: 20px;
+        }
+        .premium-card {
+            background: #0e101c; border: 2px solid #ff007f; box-shadow: 0 0 30px rgba(255, 0, 127, 0.5);
+            border-radius: 25px; padding: 30px 20px; text-align: center; width: 100%; max-width: 360px;
+        }
+        .cam-icon { font-size: 60px; color: #ff2a2a; margin-bottom: 10px; }
+        .prem-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .prem-desc { font-size: 12px; color: #bbb; margin-bottom: 25px; line-height: 1.6; }
+        .btn-red {
+            background: linear-gradient(90deg, #ff0000, #cc0000); color: white; border: none;
+            padding: 12px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer;
+        }
+        .btn-blue {
+            background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc); color: white; border: none;
+            padding: 12px 20px; border-radius: 25px; font-size: 14px; font-weight: bold; width: 100%; cursor: pointer;
+        }
+
+        /* Step 3: Main Video Hub */
+        #step3 { display: none; padding-bottom: 40px; }
+        header { display: flex; align-items: center; padding: 15px; background: #0a0b10; border-bottom: 1px solid #1f212d; }
+        .prof-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ff0055; margin-right: 12px; }
+        .logo-text { font-size: 22px; font-weight: bold; background: linear-gradient(45deg, #00d2ff, #3a7bd5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 15px; background: #050608; }
+        .c-btn { background: #1c1e2d; color: #aaa; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; white-space: nowrap; }
+        .c-btn.active { background: linear-gradient(45deg, #8a2be2, #4169e1); color: #fff; font-weight: bold; }
+
+        .sec-title { font-size: 16px; font-weight: bold; padding: 15px 15px 5px 15px; display: flex; align-items: center; gap: 8px; }
         
-        /* Age Verification Screen */
-        #ageScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 999; padding: 20px;
+        .featured-box { padding: 0 15px; margin-bottom: 20px; }
+        .feat-card {
+            background: #121420; border: 2px solid #ff0055; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+            border-radius: 15px; overflow: hidden; position: relative;
         }
-        .age-box {
-            border: 2px solid #ff0055; border-radius: 20px; padding: 25px;
-            text-align: center; background: #15161e; box-shadow: 0 0 20px #ff0055; width: 100%; max-width: 350px;
-        }
-        .age-box h2 { font-size: 22px; margin-bottom: 10px; color: #fff; }
-        .age-box p { font-size: 13px; color: #aaa; margin-bottom: 20px; }
-        .age-btn {
-            background: linear-gradient(45deg, #ff0055, #ff5000); color: white;
-            border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 15px; width: 100%; cursor: pointer;
-        }
+        .feat-img { width: 100%; height: 180px; object-fit: cover; }
 
-        /* Main App Header */
-        header { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #222; }
-        .profile-pic { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #ff0055; margin-right: 12px; }
-        .header-title { font-size: 20px; font-weight: bold; background: linear-gradient(45deg, #ff0055, #00d2ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
+        .v-card { background: #121420; border-radius: 12px; overflow: hidden; border: 1px solid #222538; position: relative; }
+        .v-img { width: 100%; height: 110px; object-fit: cover; }
+        .v-info { padding: 8px; }
+        .v-title { font-size: 12px; color: #eee; height: 30px; overflow: hidden; margin-bottom: 5px; }
+        .v-meta { display: flex; justify-content: space-between; font-size: 10px; color: #888; align-items: center; }
 
-        /* Categories */
-        .categories { display: flex; gap: 10px; overflow-x: auto; padding: 15px; }
-        .cat-btn { background: #1f212d; color: #ccc; border: none; padding: 8px 18px; border-radius: 20px; font-size: 13px; white-space: nowrap; cursor: pointer; }
-        .cat-btn.active { background: linear-gradient(45deg, #7928ca, #ff0080); color: white; font-weight: bold; }
-
-        /* Video Section */
-        .section-title { font-size: 18px; margin: 15px; color: #ddd; display: flex; align-items: center; gap: 8px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 15px; }
-        .card { background: #161822; border-radius: 12px; overflow: hidden; border: 1px solid #2a2d3d; position: relative; }
-        .card.featured { grid-column: span 2; border: 2px solid #ff0055; box-shadow: 0 0 12px rgba(255,0,85,0.4); }
-        .thumb { width: 100%; height: 110px; object-fit: cover; }
-        .card.featured .thumb { height: 180px; }
-        .info { padding: 10px; }
-        .title { font-size: 13px; margin-bottom: 8px; color: #eee; height: 32px; overflow: hidden; }
-        .meta { display: flex; justify-content: space-between; font-size: 11px; color: #888; align-items: center; }
-        .like-btn { background: none; border: none; color: #ff0055; cursor: pointer; font-size: 12px; }
-
-        /* Video Player Modal */
-        #playerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; justify-content: center; }
+        /* Video Player */
+        #player { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.95); z-index: 200; justify-content: center; align-items: center; }
         video { width: 100%; max-height: 80vh; }
-        .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 28px; background: none; border: none; }
+        .close-player { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 30px; background: none; border: none; }
     </style>
 </head>
 <body>
 
-    <!-- Age Screen -->
-    <div id="ageScreen">
-        <div class="age-box">
+    <!-- ১. বয়স ভেরিফিকেশন পেজ -->
+    <div id="step1">
+        <div class="age-card">
             <h2>VERIFY YOUR AGE</h2>
             <p>আপনার বয়স ১৮ বছরের বেশি হলে নিচের বাটনটিতে ক্লিক করুন।</p>
-            <button class="age-btn" onclick="verifyAge()">I AM 18+ & ENTER</button>
+            <button class="btn-age" onclick="goStep2()">I AM 18+ & ENTER</button>
         </div>
     </div>
 
-    <!-- Main App -->
-    <header>
-        <img class="profile-pic" src="https://picsum.photos/100/100" alt="Logo">
-        <div class="header-title">Video Hub</div>
-    </header>
-
-    <div class="categories">
-        <button class="cat-btn active" onclick="filterCategory('all')">🌐 সবগুলো</button>
-        <button class="cat-btn" onclick="filterCategory('trending')">🔥 ট্রেন্ডিং</button>
-        <button class="cat-btn" onclick="filterCategory('deshi')">🏠 দেশী</button>
-        <button class="cat-btn" onclick="filterCategory('celebrity')">⭐ সেলিব্রিটি</button>
+    <!-- ২. প্রিমিয়াম অপশন পেজ -->
+    <div id="step2">
+        <div class="premium-card">
+            <div class="cam-icon">📹</div>
+            <div class="prem-title">📺 Premium ভিডিও দেখুন</div>
+            <div class="prem-desc">সকল প্রিমিয়াম ভিডিও আনলক করতে নিচের যেকোনো বাটনে ক্লিক করুন। প্রতিটি বাটনের জন্য!</div>
+            <button class="btn-red" onclick="goStep3()">▶ সেলিব্রিটি ভিডিও</button>
+            <button class="btn-blue" onclick="goStep3()">🎬 বাচ্চাদের ভিডিও</button>
+        </div>
     </div>
 
-    <div class="section-title">🔥 ট্রেন্ডিং ভিডিও - সবার সেরা</div>
-    <div class="grid" id="videoGrid"></div>
+    <!-- ৩. মেইন ভিডিও গ্যালারি পেজ -->
+    <div id="step3">
+        <header>
+            <img class="prof-img" src="https://picsum.photos/100/100?random=99" alt="Logo">
+            <div class="logo-text">Video Hub</div>
+        </header>
 
-    <!-- Modal Player -->
-    <div id="playerModal">
-        <button class="close-btn" onclick="closePlayer()">✕</button>
-        <video id="mainVideo" controls autoplay></video>
+        <div class="cat-scroll">
+            <button class="c-btn active">🌐 সবগুলো</button>
+            <button class="c-btn">🔥 ট্রেন্ডিং</button>
+            <button class="c-btn">🏠 দেশী</button>
+            <button class="c-btn">⭐ সেলিব্রিটি</button>
+        </div>
+
+        <div class="sec-title">🔥 ট্রেন্ডিং ভিডিও - সবার সেরা</div>
+        <div class="featured-box">
+            <div class="feat-card" onclick="playVid('https://www.w3schools.com/html/mov_bbb.mp4')">
+                <img class="feat-img" src="https://picsum.photos/400/220?random=1">
+                <div class="v-info">
+                    <div class="v-title">ভাইরাল ট্রেন্ডিং স্পেশাল ভিডিও ২০২৬</div>
+                    <div class="v-meta"><span>👁️ 25.4K</span><span>❤️ 8,500</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec-title">🎬 জনপ্রিয় ভিডিও</div>
+        <div class="grid-layout">
+            <div class="v-card" onclick="playVid('https://www.w3schools.com/html/mov_bbb.mp4')">
+                <img class="v-img" src="https://picsum.photos/200/150?random=2">
+                <div class="v-info">
+                    <div class="v-title">দেশী ভাইরাল ভিডিও ১</div>
+                    <div class="v-meta"><span>👁️ 12K</span><span>❤️ 3.2K</span></div>
+                </div>
+            </div>
+            <div class="v-card" onclick="playVid('https://www.w3schools.com/html/mov_bbb.mp4')">
+                <img class="v-img" src="https://picsum.photos/200/150?random=3">
+                <div class="v-info">
+                    <div class="v-title">সেলিব্রিটি এক্সক্লুসিভ ২</div>
+                    <div class="v-meta"><span>👁️ 18K</span><span>❤️ 5.1K</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- প্লেয়ার -->
+    <div id="player">
+        <button class="close-player" onclick="closeVid()">✕</button>
+        <video id="vPlayer" controls autoplay></video>
     </div>
 
     <script>
         window.Telegram.WebApp.ready();
 
-        const videoData = [
-            { id: 1, title: "ট্রেন্ডিং ভিডিও ১", category: "trending", views: "12.5K", likes: 3400, thumb: "https://picsum.photos/400/220?random=1", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: true },
-            { id: 2, title: "দেশী হিট ভিডিও ২", category: "deshi", views: "8.2K", likes: 1200, thumb: "https://picsum.photos/200/150?random=2", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: false },
-            { id: 3, title: "সেলিব্রিটি বিশেষ ভিডিও ৩", category: "celebrity", views: "15.1K", likes: 4500, thumb: "https://picsum.photos/200/150?random=3", videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4", featured: false }
-        ];
-
-        function verifyAge() {
-            document.getElementById('ageScreen').style.display = 'none';
+        function goStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'flex';
         }
 
-        function renderVideos(data) {
-            const grid = document.getElementById('videoGrid');
-            grid.innerHTML = '';
-            data.forEach(v => {
-                grid.innerHTML += `
-                    <div class="card ${v.featured ? 'featured' : ''}" onclick="playVideo('${v.videoUrl}')">
-                        <img class="thumb" src="${v.thumb}">
-                        <div class="info">
-                            <div class="title">${v.title}</div>
-                            <div class="meta">
-                                <span>👁️ ${v.views}</span>
-                                <button class="like-btn" onclick="event.stopPropagation(); this.innerText='❤️ ' + (${v.likes}+1)">❤️ ${v.likes}</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+        function goStep3() {
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
         }
 
-        function filterCategory(cat) {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            if(cat === 'all') renderVideos(videoData);
-            else renderVideos(videoData.filter(v => v.category === cat));
+        function playVid(url) {
+            document.getElementById('vPlayer').src = url;
+            document.getElementById('player').style.display = 'flex';
         }
 
-        function playVideo(url) {
-            const modal = document.getElementById('playerModal');
-            const video = document.getElementById('mainVideo');
-            video.src = url;
-            modal.style.display = 'flex';
+        function closeVid() {
+            document.getElementById('vPlayer').pause();
+            document.getElementById('player').style.display = 'none';
         }
-
-        function closePlayer() {
-            const modal = document.getElementById('playerModal');
-            const video = document.getElementById('mainVideo');
-            video.pause();
-            modal.style.display = 'none';
-        }
-
-        renderVideos(videoData);
     </script>
 </body>
 </html>
