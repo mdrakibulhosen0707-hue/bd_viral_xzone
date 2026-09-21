@@ -1,62 +1,12 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Hub</title>
-    <!-- Telegram Web App JS Library -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            background-color: #0f0f12;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-        }
-        .card {
-            border: 2px solid #e50914;
-            border-radius: 15px;
-            padding: 20px;
-            background: #1a1a24;
-            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
-            margin-top: 30px;
-        }
-        h1 { font-size: 24px; color: #fff; }
-        p { color: #ccc; font-size: 14px; }
-        .btn {
-            background: linear-gradient(45deg, #ff0055, #ff5000);
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            width: 80%;
-            display: inline-block;
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="card">
-        <h1>VERIFY YOUR AGE</h1>
-        <p>আপনার বয়স ১৮ বছরের বেশি হলে নিচের বাটনটিতে ক্লিক করুন।</p>
-        <button class="btn" onclick="openVideos()">I AM 18+ & ENTER</button>
-    </div>
-
-    <script>
-        // Telegram Web App initialize
-        window.Telegram.WebApp.ready();
-
-        function openVideos() {
-            alert("স্বাগতম! আপনার ভেরিফিকেশন সফল হয়েছে।");
-            // এখানে আপনার মূল ভিডিও পেজ বা চ্যানেলের লিংক দিতে পারেন
-        }
-    </script>
-</body>
-</html>
+const videoData = [
+    {
+        id: 1,
+        title: "আপনার ভিডিওর শিরোনাম",
+        category: "trending", // ক্যাটাগরি: 'trending', 'deshi', 'celebrity'
+        views: "12.5K",
+        likes: 3400,
+        thumb: "https://... (ছবি/থাম্বনেইলের লিঙ্ক)",
+        videoUrl: "https://... (ভিডিওর লিঙ্ক)"
+    },
+    // কমা (,) দিয়ে এভাবে নতুন ভিডিওর ডাটা বসাতে পারবেন
+];
